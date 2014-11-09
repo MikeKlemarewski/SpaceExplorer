@@ -65,6 +65,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     private Vibrator mVibrator;
 
     private Cube cube;
+    private boolean isMoving = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +86,12 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         cube = new Cube(0.0f, 0.0f, 0.0f, 1.0f);
+    }
+
+    @Override
+    public void onCardboardTrigger() {
+        mVibrator.vibrate(50);
+        isMoving = !isMoving;
     }
 
     @Override
@@ -229,6 +236,12 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
                 0, mCubeColors);
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36);
         checkGLError("Drawing cube");
+    }
+
+    private void moveSpaceship() {
+        if( isMoving ) {
+            Matrix.translateM(mModelView, 0, 0, 0, 10);
+        }
     }
 
     private static void checkGLError(String func) {
