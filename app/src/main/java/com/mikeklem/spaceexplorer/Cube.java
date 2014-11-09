@@ -1,19 +1,3 @@
-/*
- * Copyright 2014 Google Inc. All Rights Reserved.
-
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.mikeklem.spaceexplorer;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -33,8 +17,9 @@ public class Cube {
     float[] backBottomLeft;
     float[] backBottomRight;
     float[] coordinates;
+    float[] colors;
 
-    public Cube (float x, float y, float z, float size) {
+    public Cube (float x, float y, float z, float size, float temperature) {
         this.frontTopLeft = new float[] {
                 (x - size), (y + size) , (z + size)
         };
@@ -86,8 +71,15 @@ public class Cube {
             frontBottomRight, frontBottomLeft, backBottomLeft
         };
 
-        coordinates = addAllArrays(chords);
+        this.coordinates = addAllArrays(chords);
 
+        float[] rgb = kToRGB(temperature);
+        float[][] tmpColors = new float[][]{};
+        for (int i = 0; i < 37; i++) {
+            tmpColors = ArrayUtils.addAll(tmpColors, rgb);
+        }
+
+        this.colors = addAllArrays(tmpColors);
     }
 
     public static final float[] CUBE_COORDS = new float[] {
@@ -249,6 +241,81 @@ public class Cube {
     };
 
     public float[] getCoordinates() {
-        return coordinates;
+        return this.coordinates;
     };
+
+    public float[] getColors() {
+        return this.colors;
+    };
+
+    /**
+     * Do a rough estimation of kelvin temperature to RGB
+     * http://www.tannerhelland.com/4435/convert-temperature-rgb-algorithm-code/
+     */
+    public float[] kToRGB(float temp){
+
+        float temperature = temp / 100f;
+        double red;
+        double green;
+        double blue;
+
+        if (temperature <= 66){
+            red = 255;
+        } else {
+            red = temperature - 60;
+            red = 329.698727466 * Math.pow(red, -0.1332047592);
+            if (red < 0){
+                red = 0;
+            }
+            if (red > 255){
+                red = 255;
+            }
+        }
+
+        if (temperature <= 66){
+            green = temperature;
+            green = 99.4708025861 * Math.log(green) - 161.1195681661;
+            if (green < 0 ) {
+                green = 0;
+            }
+            if (green > 255) {
+                green = 255;
+            }
+        } else {
+            green = temperature - 60;
+            green = 288.1221695283 * Math.pow(green, -0.0755148492);
+            if (green < 0 ) {
+                green = 0;
+            }
+            if (green > 255) {
+                green = 255;
+            }
+        }
+
+        if (temperature >= 66){
+            blue = 255;
+        } else {
+            if (temperature <= 19){
+                blue = 0;
+            } else {
+                blue = temperature - 10;
+                blue = 138.5177312231 * Math.log(blue) - 305.0447927307;
+                if (blue < 0){
+                    blue = 0;
+                }
+                if (blue > 255){
+                    blue = 255;
+                }
+            }
+        }
+
+        float[] result = new float[]{
+            Math.round(red),
+            Math.round(green),
+            Math.round(blue)
+        };
+
+        return result;
+
+    }
 }

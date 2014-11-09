@@ -30,13 +30,8 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
     private static final int COORDS_PER_VERTEX = 3;
 
-    private FloatBuffer mFloorVertices;
-    private FloatBuffer mFloorColors;
-    private FloatBuffer mFloorNormals;
-
     private FloatBuffer mCubeVertices;
     private FloatBuffer mCubeColors;
-    private FloatBuffer mCubeFoundColors;
     private FloatBuffer mCubeNormals;
 
     private int mGlProgram;
@@ -85,7 +80,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         mHeadView = new float[16];
         mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
-        cube = new Cube(0.0f, 0.0f, 0.0f, 1.0f);
+        cube = new Cube(0.0f, 0.0f, 0.0f, 1.0f, 7000f);
     }
 
     @Override
@@ -135,10 +130,10 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         mCubeVertices.put(cube.getCoordinates());
         mCubeVertices.position(0);
 
-        ByteBuffer bbColors = ByteBuffer.allocateDirect(Cube.CUBE_COLORS.length * 4);
+        ByteBuffer bbColors = ByteBuffer.allocateDirect(cube.getColors().length * 4);
         bbColors.order(ByteOrder.nativeOrder());
         mCubeColors = bbColors.asFloatBuffer();
-        mCubeColors.put(Cube.CUBE_COLORS);
+        mCubeColors.put(cube.getColors());
         mCubeColors.position(0);
 
         ByteBuffer bbNormals = ByteBuffer.allocateDirect(Cube.CUBE_NORMALS.length * 4);
