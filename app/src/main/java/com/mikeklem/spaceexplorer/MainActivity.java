@@ -13,10 +13,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-import javax.microedition.khronos.egl.EGLConfig;g
+import javax.microedition.khronos.egl.EGLConfig;
 
 import static com.mikeklem.spaceexplorer.GLHelpers.*;
-import com.mikeklem.spaceexplorer.WorldData;
 
 public class MainActivity extends CardboardActivity implements CardboardView.StereoRenderer {
 
@@ -66,6 +65,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     private Vibrator mVibrator;
 
     private WorldData DATA = new WorldData();
+    private boolean isMoving = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +84,12 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         mModelFloor = new float[16];
         mHeadView = new float[16];
         mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+    }
 
+    @Override
+    public void onCardboardTrigger() {
+        mVibrator.vibrate(50);
+        isMoving = !isMoving;
     }
 
     @Override
@@ -229,6 +234,12 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
                 0, mCubeColors);
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36);
         checkGLError("Drawing cube");
+    }
+
+    private void moveSpaceship() {
+        if( isMoving ) {
+            Matrix.translateM(mModelView, 0, 0, 0, 10);
+        }
     }
 
     private static void checkGLError(String func) {
