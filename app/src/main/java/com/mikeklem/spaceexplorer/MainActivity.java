@@ -16,7 +16,6 @@ import java.nio.FloatBuffer;
 import javax.microedition.khronos.egl.EGLConfig;
 
 import static com.mikeklem.spaceexplorer.GLHelpers.*;
-import com.mikeklem.spaceexplorer.WorldData;
 
 public class MainActivity extends CardboardActivity implements CardboardView.StereoRenderer {
 
@@ -65,7 +64,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
     private Vibrator mVibrator;
 
-    private WorldData DATA = new WorldData();
+    private Cube cube;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +84,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         mHeadView = new float[16];
         mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
+        cube = new Cube(0.0f, 0.0f, 0.0f, 1.0f);
     }
 
     @Override
@@ -122,22 +122,22 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         Log.i(TAG, "onSurfaceCreated");
         GLES20.glClearColor(0.1f, 0.1f, 0.1f, 0.5f); // Dark background so text shows up well
 
-        ByteBuffer bbVertices = ByteBuffer.allocateDirect(DATA.CUBE_COORDS.length * 4);
+        ByteBuffer bbVertices = ByteBuffer.allocateDirect(cube.getCoordinates().length * 4);
         bbVertices.order(ByteOrder.nativeOrder());
         mCubeVertices = bbVertices.asFloatBuffer();
-        mCubeVertices.put(DATA.CUBE_COORDS);
+        mCubeVertices.put(cube.getCoordinates());
         mCubeVertices.position(0);
 
-        ByteBuffer bbColors = ByteBuffer.allocateDirect(DATA.CUBE_COLORS.length * 4);
+        ByteBuffer bbColors = ByteBuffer.allocateDirect(Cube.CUBE_COLORS.length * 4);
         bbColors.order(ByteOrder.nativeOrder());
         mCubeColors = bbColors.asFloatBuffer();
-        mCubeColors.put(DATA.CUBE_COLORS);
+        mCubeColors.put(Cube.CUBE_COLORS);
         mCubeColors.position(0);
 
-        ByteBuffer bbNormals = ByteBuffer.allocateDirect(DATA.CUBE_NORMALS.length * 4);
+        ByteBuffer bbNormals = ByteBuffer.allocateDirect(Cube.CUBE_NORMALS.length * 4);
         bbNormals.order(ByteOrder.nativeOrder());
         mCubeNormals = bbNormals.asFloatBuffer();
-        mCubeNormals.put(DATA.CUBE_NORMALS);
+        mCubeNormals.put(Cube.CUBE_NORMALS);
         mCubeNormals.position(0);
 
         int vertexShader = loadGLShader(this, GLES20.GL_VERTEX_SHADER, R.raw.light_vertex);
