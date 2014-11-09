@@ -345,7 +345,7 @@ public class Cube {
             (this.backBottomRight[0] + x), (this.backBottomRight[1] + y), (this.backBottomRight[2] + z)
         };
 
-        float[][] chords = new float[][]{
+        float[][] coords = new float[][]{
                 // Front face
                 frontTopLeft, frontBottomLeft, frontTopRight,
                 frontBottomLeft, frontBottomRight, frontTopRight,
@@ -371,6 +371,6 @@ public class Cube {
                 frontBottomRight, frontBottomLeft, backBottomLeft
         };
 
-        this.coordinates = addAllArrays(chords);
+        this.coordinates = addAllArrays(coords);
     }
 }

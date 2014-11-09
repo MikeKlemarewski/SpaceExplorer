@@ -57,7 +57,6 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
     private float[] mModelFloor;
 
-    private int mScore = 0;
     private float mObjectDistance = 12f;
     private float mFloorDepth = 20f;
 
@@ -65,6 +64,9 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
     private Cube cube;
     private boolean isMoving = true;
+    private float currentX;
+    private float currentY;
+    private float currentZ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +86,10 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         mHeadView = new float[16];
         mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
-        cube = new Cube(0.0f, 0.0f, 0.0f, 1.0f, 7000f);
+        currentX = 0.0f;
+        currentY = 0.0f;
+        currentZ = 0.0f;
+        cube = new Cube(currentX, currentY, currentZ, 1.0f, 7000f);
     }
 
     @Override
@@ -112,7 +117,11 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         if( isMoving ) {
             cube.move(mShipMovement[0], mShipMovement[1], mShipMovement[2]);
+            currentX += mShipMovement[0];
+            currentY += mShipMovement[1];
+            currentZ += mShipMovement[2];
             mModelCube = cube.getCoordinates();
+            Log.i("Current XYZ", "" + currentX + ' ' + currentY + " " + currentZ);
         }
 
         mModelViewProjectionParam = GLES20.glGetUniformLocation(mGlProgram, "u_MVP");
@@ -205,6 +214,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         // Build the ModelView and ModelViewProjection matrices
         // for calculating cube position and light.
+        mModelCube = cube.getCoordinates();
         Matrix.multiplyMM(mModelView, 0, mView, 0, mModelCube, 0);
         Matrix.multiplyMM(mModelViewProjection, 0, transform.getPerspective(), 0, mModelView, 0);
         drawCube();
@@ -220,7 +230,8 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
      * the shader.
      */
     public void drawCube() {
-        mModelCube = cube.getCoordinates();
+        mCubeVertices.clear();
+        mCubeVertices.put(mModelCube);
 
         // This is not the floor!
         GLES20.glUniform1f(mIsFloorParam, 0f);
@@ -230,9 +241,6 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         // Set the ModelView in the shader, used to calculate lighting
         GLES20.glUniformMatrix4fv(mModelViewParam, 1, false, mModelView, 0);
-
-        mCubeVertices.clear();
-        mCubeVertices.put(mModelCube);
 
         // Set the position of the cube
         GLES20.glVertexAttribPointer(mPositionParam, COORDS_PER_VERTEX, GLES20.GL_FLOAT,
