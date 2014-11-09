@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.egl.EGLConfig;g
 
 import static com.mikeklem.spaceexplorer.GLHelpers.*;
 import com.mikeklem.spaceexplorer.WorldData;
