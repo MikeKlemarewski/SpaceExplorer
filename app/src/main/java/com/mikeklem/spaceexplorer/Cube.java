@@ -73,9 +73,9 @@ public class Cube {
 
         this.coordinates = addAllArrays(chords);
 
-        float[] rgb = kToRGB(temperature);
+        float[] rgb = kToRGBA(temperature, 1.0f);
         float[][] tmpColors = new float[][]{};
-        for (int i = 0; i < 37; i++) {
+        for (int i = 0; i < 36; i++) {
             tmpColors = ArrayUtils.addAll(tmpColors, rgb);
         }
 
@@ -152,7 +152,7 @@ public class Cube {
      * Do a rough estimation of kelvin temperature to RGB
      * http://www.tannerhelland.com/4435/convert-temperature-rgb-algorithm-code/
      */
-    public float[] kToRGB(float temp){
+    public float[] kToRGBA(float temp, float brightness){
 
         float temperature = temp / 100f;
         double red;
@@ -212,7 +212,8 @@ public class Cube {
         float[] result = new float[]{
             Math.round(red),
             Math.round(green),
-            Math.round(blue)
+            Math.round(blue),
+            brightness
         };
 
         return result;
