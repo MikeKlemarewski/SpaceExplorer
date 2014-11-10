@@ -209,10 +209,6 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         Matrix.multiplyMM(mModelViewProjection, 0, transform.getPerspective(), 0, mModelView, 0);
         drawCubes();
 
-        // Set mModelView for the floor, so we draw floor in the correct location
-        Matrix.multiplyMM(mModelView, 0, mView, 0, mModelFloor, 0);
-        Matrix.multiplyMM(mModelViewProjection, 0, transform.getPerspective(), 0,
-                mModelView, 0);
     }
 
     /**
