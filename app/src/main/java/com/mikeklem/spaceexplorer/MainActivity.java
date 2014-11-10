@@ -13,6 +13,7 @@ import com.google.vrtoolkit.cardboard.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 
 import javax.microedition.khronos.egl.EGLConfig;
 
@@ -30,7 +31,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     private final float[] mLightPosInEyeSpace = new float[4];
 
     // Keep a constant speed for the ship's movement and track ship movement changes
-    private final float[] mShipMovement = new float[] {0.0f, 0.0f, -1.0f};
+    private final float[] mShipMovement = new float[] {0.0f, 0.0f, -0.1f};
 
     private static final int COORDS_PER_VERTEX = 3;
 
@@ -62,11 +63,12 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
     private Vibrator mVibrator;
 
-    private Cube cube;
-    private boolean isMoving = true;
     private float currentX;
     private float currentY;
     private float currentZ;
+
+    private ArrayList<Cube> cubes = new ArrayList<Cube>();
+    private boolean isMoving = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +79,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         cardboardView.setRenderer(this);
         setCardboardView(cardboardView);
 
-        mModelCube = new float[16];
+
         mCamera = new float[16];
         mView = new float[16];
         mModelViewProjection = new float[16];
@@ -89,7 +91,21 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         currentX = 0.0f;
         currentY = 0.0f;
         currentZ = 0.0f;
-        cube = new Cube(currentX, currentY, currentZ, 1.0f, 7000f);
+
+        Cube cube1 = new Cube(0.0f, 0.0f, 0.0f, 1.0f, 5000f);
+        Cube cube2 = new Cube(4.0f, 0.0f, 0.0f, 1.0f, 5000f);
+        Cube cube3 = new Cube(4.0f, 3.0f, 0.0f, 1.0f, 5000f);
+        Cube cube4 = new Cube(2.0f, -6.0f, 0.0f, 1.0f, 5000f);
+        Cube cube5 = new Cube(4.0f, 0.0f, -1.0f, 1.0f, 5000f);
+        Cube cube6 = new Cube(0.0f, 1.0f, 4.0f, 1.0f, 5000f);
+        cubes.add(cube1);
+        cubes.add(cube2);
+        cubes.add(cube3);
+        cubes.add(cube4);
+        cubes.add(cube5);
+        cubes.add(cube6);
+
+        mModelCube = new float[cubes.size() * 16];
     }
 
     @Override
@@ -116,12 +132,11 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         GLES20.glUseProgram(mGlProgram);
 
         if( isMoving ) {
-            cube.move(mShipMovement[0], mShipMovement[1], mShipMovement[2]);
-            currentX += mShipMovement[0];
-            currentY += mShipMovement[1];
-            currentZ += mShipMovement[2];
-            mModelCube = cube.getCoordinates();
-            Log.i("Current XYZ", "" + currentX + ' ' + currentY + " " + currentZ);
+            Matrix.setIdentityM(mModelCube, 0);
+            Matrix.translateM(mModelCube, 0, 0, 0, -currentZ);
+            currentX -= mShipMovement[0];
+            currentY -= mShipMovement[1];
+            currentZ -= mShipMovement[2];
         }
 
         mModelViewProjectionParam = GLES20.glGetUniformLocation(mGlProgram, "u_MVP");
@@ -146,24 +161,27 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         Log.i(TAG, "onSurfaceCreated");
         GLES20.glClearColor(0.1f, 0.1f, 0.1f, 0.5f); // Dark background so text shows up well
 
-        mModelCube = cube.getCoordinates();
-
-        ByteBuffer bbVertices = ByteBuffer.allocateDirect(mModelCube.length * 4);
+        float[] cubeCoords = getCubeCoordinates(cubes);
+        ByteBuffer bbVertices = ByteBuffer.allocateDirect(cubeCoords.length * 4);
         bbVertices.order(ByteOrder.nativeOrder());
         mCubeVertices = bbVertices.asFloatBuffer();
-        mCubeVertices.put(mModelCube);
+        mCubeVertices.put(cubeCoords);
         mCubeVertices.position(0);
 
-        ByteBuffer bbColors = ByteBuffer.allocateDirect(cube.getColors().length * 4);
+        float[] cubeColors = getCubeColors(cubes);
+
+        ByteBuffer bbColors = ByteBuffer.allocateDirect(cubeColors.length * 4);
         bbColors.order(ByteOrder.nativeOrder());
         mCubeColors = bbColors.asFloatBuffer();
-        mCubeColors.put(cube.getColors());
+        mCubeColors.put(cubeColors);
         mCubeColors.position(0);
 
-        ByteBuffer bbNormals = ByteBuffer.allocateDirect(Cube.CUBE_NORMALS.length * 4);
+        float[] cubeNormals = getCubeNormals(cubes);
+
+        ByteBuffer bbNormals = ByteBuffer.allocateDirect(cubeNormals.length * 4);
         bbNormals.order(ByteOrder.nativeOrder());
         mCubeNormals = bbNormals.asFloatBuffer();
-        mCubeNormals.put(Cube.CUBE_NORMALS);
+        mCubeNormals.put(cubeNormals);
         mCubeNormals.position(0);
 
         int vertexShader = loadGLShader(this, GLES20.GL_VERTEX_SHADER, R.raw.light_vertex);
@@ -175,6 +193,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         GLES20.glLinkProgram(mGlProgram);
 
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+        GLES20.glDisable(GLES20.GL_CULL_FACE);
 
         // Object first appears directly in front of user
         Matrix.setIdentityM(mModelCube, 0);
@@ -214,10 +233,9 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         // Build the ModelView and ModelViewProjection matrices
         // for calculating cube position and light.
-        mModelCube = cube.getCoordinates();
         Matrix.multiplyMM(mModelView, 0, mView, 0, mModelCube, 0);
         Matrix.multiplyMM(mModelViewProjection, 0, transform.getPerspective(), 0, mModelView, 0);
-        drawCube();
+        drawCubes();
 
         // Set mModelView for the floor, so we draw floor in the correct location
         Matrix.multiplyMM(mModelView, 0, mView, 0, mModelFloor, 0);
@@ -229,10 +247,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
      * Draw the cube. We've set all of our transformation matrices. Now we simply pass them into
      * the shader.
      */
-    public void drawCube() {
-        mCubeVertices.clear();
-        mCubeVertices.put(mModelCube);
-
+    public void drawCubes() {
         // This is not the floor!
         GLES20.glUniform1f(mIsFloorParam, 0f);
 
@@ -255,7 +270,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         GLES20.glVertexAttribPointer(mColorParam, 4, GLES20.GL_FLOAT, false,
                 0, mCubeColors);
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, (cubes.size()*36));
         checkGLError("Drawing cube");
     }
 
@@ -267,4 +282,46 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         }
     }
 
+    private static float[] getCubeCoordinates(ArrayList<Cube> cubes) {
+        int length = cubes.size();
+        // 108 coordinates per cube
+        float[] result = new float[length * 108];
+
+        for (int i = 0; i < cubes.size(); i++) {
+            float[] cubeCoords = cubes.get(i).getCoordinates();
+            for (int t = 0; t < cubeCoords.length; t++) {
+                int offset = i * cubeCoords.length;
+                result[offset + t] = cubeCoords[t];
+            }
+        }
+        return result;
+    };
+
+    private static float[] getCubeColors(ArrayList<Cube> cubes) {
+        int length = cubes.size();
+        float[] result = new float[length * 144];
+
+        for (int i = 0; i < cubes.size(); i++) {
+            float[] cubeColors = cubes.get(i).getColors();
+            for (int t = 0; t < cubeColors.length; t++) {
+                int offset = i * cubeColors.length;
+                result[offset + t] = cubeColors[t];
+            }
+        }
+        return result;
+    };
+
+    private static float[] getCubeNormals(ArrayList<Cube> cubes) {
+        int length = cubes.size();
+        float[] result = new float[length * 108];
+
+        for (int i = 0; i < cubes.size(); i++) {
+            float[] cubeNormals = Cube.CUBE_NORMALS;
+            for (int t = 0; t < cubeNormals.length; t++) {
+                int offset = i * cubeNormals.length;
+                result[offset + t] = cubeNormals[t];
+            }
+        }
+        return result;
+    };
 }
