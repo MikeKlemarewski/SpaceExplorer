@@ -73,7 +73,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         cardboardView.setRenderer(this);
         setCardboardView(cardboardView);
 
-        mModelCube = new float[16];
+
         mCamera = new float[16];
         mView = new float[16];
         mModelViewProjection = new float[16];
@@ -84,8 +84,18 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         Cube cube1 = new Cube(0.0f, 0.0f, 0.0f, 1.0f, 2000f);
         Cube cube2 = new Cube(4.0f, 0.0f, 0.0f, 1.0f, 5000f);
+        Cube cube3 = new Cube(4.0f, 3.0f, 0.0f, 1.0f, 5000f);
+        Cube cube4 = new Cube(2.0f, -6.0f, 0.0f, 1.0f, 5000f);
+        Cube cube5 = new Cube(4.0f, 0.0f, -1.0f, 1.0f, 5000f);
+        Cube cube6 = new Cube(0.0f, 1.0f, 4.0f, 1.0f, 5000f);
         cubes.add(cube1);
         cubes.add(cube2);
+        cubes.add(cube3);
+        cubes.add(cube4);
+        cubes.add(cube5);
+        cubes.add(cube6);
+
+        mModelCube = new float[cubes.size() * 16];
     }
 
     @Override
@@ -280,8 +290,6 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
             float[] cubeColors = cubes.get(i).getColors();
             for (int t = 0; t < cubeColors.length; t++) {
                 int offset = i * cubeColors.length;
-                Log.d(TAG, "Index " + (offset + t));
-                Log.d(TAG, "Offset " + (offset));
                 result[offset + t] = cubeColors[t];
             }
         }
