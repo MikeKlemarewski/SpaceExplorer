@@ -14,6 +14,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 
@@ -92,18 +93,13 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         currentY = 0.0f;
         currentZ = 0.0f;
 
-        Cube cube1 = new Cube(0.0f, 0.0f, 0.0f, 1.0f, 5000f);
-        Cube cube2 = new Cube(4.0f, 0.0f, 0.0f, 1.0f, 5000f);
-        Cube cube3 = new Cube(4.0f, 3.0f, 0.0f, 1.0f, 5000f);
-        Cube cube4 = new Cube(2.0f, -6.0f, 0.0f, 1.0f, 5000f);
-        Cube cube5 = new Cube(4.0f, 0.0f, -1.0f, 1.0f, 5000f);
-        Cube cube6 = new Cube(0.0f, 1.0f, 4.0f, 1.0f, 5000f);
-        cubes.add(cube1);
-        cubes.add(cube2);
-        cubes.add(cube3);
-        cubes.add(cube4);
-        cubes.add(cube5);
-        cubes.add(cube6);
+        StarsDataSource starData = new StarsDataSource(this);
+        List<Star> stars = starData.getStarInQuadrant(0f, 0f, 0f);
+
+        for (Star star: stars) {
+            Cube cube = new Cube(star.getX(), star.getY(), star.getZ(), star.getAbsMag(), 2000f);
+            cubes.add(cube);
+        }
 
         mModelCube = new float[cubes.size() * 16];
     }
@@ -270,7 +266,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         GLES20.glVertexAttribPointer(mColorParam, 4, GLES20.GL_FLOAT, false,
                 0, mCubeColors);
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, (cubes.size()*36));
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, (cubes.size() * 36));
         checkGLError("Drawing cube");
     }
 
