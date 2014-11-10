@@ -6,6 +6,7 @@ import android.opengl.Matrix;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.vrtoolkit.cardboard.*;
 
@@ -29,6 +30,9 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     // We keep the light always position just above the user.
     private final float[] mLightPosInWorldSpace = new float[] {0.0f, 2.0f, 0.0f, 1.0f};
     private final float[] mLightPosInEyeSpace = new float[4];
+
+    // Keep a constant speed for the ship's movement and track ship movement changes
+    private final float[] mShipMovement = new float[] {0.0f, 0.0f, -0.1f};
 
     private static final int COORDS_PER_VERTEX = 3;
 
@@ -55,14 +59,17 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
     private float[] mModelFloor;
 
-    private int mScore = 0;
     private float mObjectDistance = 12f;
     private float mFloorDepth = 20f;
 
     private Vibrator mVibrator;
 
+    private float currentX;
+    private float currentY;
+    private float currentZ;
+
     private ArrayList<Cube> cubes = new ArrayList<Cube>();
-    private boolean isMoving = false;
+    private boolean isMoving = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +89,10 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         mHeadView = new float[16];
         mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
+        currentX = 0.0f;
+        currentY = 0.0f;
+        currentZ = 0.0f;
+
         StarsDataSource starData = new StarsDataSource(this);
         List<Star> stars = starData.getStarInQuadrant(0f, 0f, 0f);
 
@@ -95,8 +106,12 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
     @Override
     public void onCardboardTrigger() {
-        mVibrator.vibrate(50);
         isMoving = !isMoving;
+        mVibrator.vibrate(50);
+
+        String message = (isMoving) ? "Engines engaged." : "Engines disengaged.";
+        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     @Override
@@ -111,6 +126,14 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
     @Override
     public void onNewFrame(HeadTransform headTransform) {
         GLES20.glUseProgram(mGlProgram);
+
+        if( isMoving ) {
+            Matrix.setIdentityM(mModelCube, 0);
+            Matrix.translateM(mModelCube, 0, 0, 0, -currentZ);
+            currentX -= mShipMovement[0];
+            currentY -= mShipMovement[1];
+            currentZ -= mShipMovement[2];
+        }
 
         mModelViewProjectionParam = GLES20.glGetUniformLocation(mGlProgram, "u_MVP");
         mLightPosParam = GLES20.glGetUniformLocation(mGlProgram, "u_LightPos");
@@ -166,6 +189,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         GLES20.glLinkProgram(mGlProgram);
 
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+        GLES20.glDisable(GLES20.GL_CULL_FACE);
 
         // Object first appears directly in front of user
         Matrix.setIdentityM(mModelCube, 0);
@@ -240,18 +264,10 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         GLES20.glVertexAttribPointer(mNormalParam, 3, GLES20.GL_FLOAT,
                 false, 0, mCubeNormals);
 
-
-
         GLES20.glVertexAttribPointer(mColorParam, 4, GLES20.GL_FLOAT, false,
                 0, mCubeColors);
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, (cubes.size() * 36));
         checkGLError("Drawing cube");
-    }
-
-    private void moveSpaceship() {
-        if( isMoving ) {
-            Matrix.translateM(mModelView, 0, 0, 0, 10);
-        }
     }
 
     private static void checkGLError(String func) {

@@ -318,4 +318,59 @@ public class Cube {
         return result;
 
     }
+
+    public void move(float x, float y, float z) {
+        this.frontTopLeft = new float[] {
+            (this.frontTopLeft[0] + x), (this.frontTopLeft[1] + y) , (this.frontTopLeft[2] + z)
+        };
+        this.frontTopRight = new float[] {
+            (this.frontTopRight[0] + x), (this.frontTopRight[1] + y) , (this.frontTopRight[2] + z)
+        };
+        this.frontBottomLeft = new float[] {
+            (this.frontBottomLeft[0] + x), (this.frontBottomLeft[1] + y) , (this.frontBottomLeft[2] + z)
+        };
+        this.frontBottomRight = new float[] {
+            (this.frontBottomRight[0] + x), (this.frontBottomRight[1] + y), (this.frontBottomRight[2] + z)
+        };
+        this.backTopLeft = new float[] {
+            (this.backTopLeft[0] + x), (this.backTopLeft[1] + y), (this.backTopLeft[2] + z)
+        };
+        this.backTopRight = new float[] {
+            (this.backTopRight[0] + x), (this.backTopRight[1] + y), (this.backTopRight[2] + z)
+        };
+        this.backBottomLeft = new float[] {
+            (this.backBottomLeft[0] + x), (this.backBottomLeft[1] + y), (this.backBottomLeft[2] + z)
+        };
+        this.backBottomRight = new float[] {
+            (this.backBottomRight[0] + x), (this.backBottomRight[1] + y), (this.backBottomRight[2] + z)
+        };
+
+        float[][] coords = new float[][]{
+                // Front face
+                frontTopLeft, frontBottomLeft, frontTopRight,
+                frontBottomLeft, frontBottomRight, frontTopRight,
+
+                // Right face
+                frontTopRight, frontBottomRight, backTopRight,
+                frontBottomRight, backBottomRight, backTopRight,
+
+                // Back face
+                backTopRight, backBottomRight, backTopLeft,
+                backBottomRight, backBottomLeft, backTopLeft,
+
+                // Left Face
+                backTopLeft, backBottomLeft, frontTopLeft,
+                backBottomLeft, frontBottomLeft, frontTopLeft,
+
+                // Top face
+                backTopLeft, frontTopLeft, backTopRight,
+                frontTopLeft, frontTopRight, backTopRight,
+
+                // Bottom face
+                backBottomRight, frontBottomRight, backBottomLeft,
+                frontBottomRight, frontBottomLeft, backBottomLeft
+        };
+
+        this.coordinates = addAllArrays(coords);
+    }
 }
