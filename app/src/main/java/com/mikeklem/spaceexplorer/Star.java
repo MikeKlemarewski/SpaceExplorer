@@ -143,7 +143,7 @@ public class Star {
     }
 
     public float getAbsMag() {
-        return AbsMag;
+        return AbsMag / 5;
     }
 
     public void setAbsMag(float absMag) {
@@ -167,7 +167,7 @@ public class Star {
     }
 
     public float getX() {
-        return Float.parseFloat(X);
+        return Float.parseFloat(X) * 10;
     }
 
     public void setX(String x) {
@@ -175,7 +175,7 @@ public class Star {
     }
 
     public float getY() {
-        return Float.parseFloat(Y);
+        return Float.parseFloat(Y) * 10;
     }
 
     public void setY(String y) {
@@ -183,7 +183,7 @@ public class Star {
     }
 
     public float getZ() {
-        return Float.parseFloat(Z);
+        return Float.parseFloat(Z) * 10;
     }
 
     public void setZ(String z) {
