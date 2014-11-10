@@ -163,6 +163,8 @@ public class Star {
     }
 
     public void setColorIndex(String colorIndex) {
+        if (colorIndex.isEmpty())
+            colorIndex = "0";
         ColorIndex = 4600 * ((1/((0.92*(Float.parseFloat(colorIndex))+1.7))) + (1/((0.92*(Float.parseFloat(colorIndex))+0.62))));
     }
 
