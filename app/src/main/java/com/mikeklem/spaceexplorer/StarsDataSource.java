@@ -82,9 +82,9 @@ public class StarsDataSource {
         List<Star> stars = new ArrayList<Star>();
 
         Cursor cursor = dbHelper.myDataBase.query(DatabaseContract.StarEntryColumns.TABLE_NAME,
-                null, "(x BETWEEN ?-20 AND ?+20) AND (y BETWEEN ?-20 AND ?+20) AND (z BETWEEN ?-20 AND ?+20)",
+                new String[] { "Stars.*", "ABS(X) + ABS(Y) + ABS(Z) AS Closeness"}, "(x BETWEEN ?-20 AND ?+20) AND (y BETWEEN ?-20 AND ?+20) AND (z BETWEEN ?-20 AND ?+20)",
                 new String[] { Float.toString(x),Float.toString(x), Float.toString(y),Float.toString(y),
-                Float.toString(z),Float.toString(z)}, null, null, "X, Y, Z ASC", "100");
+                Float.toString(z),Float.toString(z)}, null, null, "Closeness ASC", "100");
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             Star star = cursorToStar(cursor);
