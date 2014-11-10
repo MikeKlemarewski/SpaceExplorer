@@ -20,7 +20,7 @@ public class Star {
     private float Mag;
     private float AbsMag;
     private String Spectrum;
-    private String ColorIndex;
+    private Double ColorIndex;
     private String X;
     private String Y;
     private String Z;
@@ -158,12 +158,12 @@ public class Star {
         Spectrum = spectrum;
     }
 
-    public String getColorIndex() {
+    public Double getColorIndex() {
         return ColorIndex;
     }
 
     public void setColorIndex(String colorIndex) {
-        ColorIndex = colorIndex;
+        ColorIndex = 4600 * ((1/((0.92*(Float.parseFloat(colorIndex))+1.7))) + (1/((0.92*(Float.parseFloat(colorIndex))+0.62))));
     }
 
     public float getX() {
