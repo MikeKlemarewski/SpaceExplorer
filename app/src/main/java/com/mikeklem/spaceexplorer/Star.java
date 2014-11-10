@@ -166,24 +166,24 @@ public class Star {
         ColorIndex = colorIndex;
     }
 
-    public String getX() {
-        return X;
+    public float getX() {
+        return Float.parseFloat(X);
     }
 
     public void setX(String x) {
         X = x;
     }
 
-    public String getY() {
-        return Y;
+    public float getY() {
+        return Float.parseFloat(Y);
     }
 
     public void setY(String y) {
         Y = y;
     }
 
-    public String getZ() {
-        return Z;
+    public float getZ() {
+        return Float.parseFloat(Z);
     }
 
     public void setZ(String z) {
